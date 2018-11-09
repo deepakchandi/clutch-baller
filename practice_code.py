@@ -2,6 +2,12 @@ import pandas as pd
 import numpy as np
 
 
+#adding new column
+def add_pts(df):
+    df['pts_difference'] = df['away_score']-df['home_score']
+    return df
+
+
 #removing columns
 col_to_remove = (['a1', 'a2', 'a3','a4','a5','h1','h2','h3','h4','h5', 'play_length', 'entered', 'left', 'possession', 'shot_distance', 'original_x', 'original_y', 'converted_x', 'converted_y', 'num', 'away', 'home', 'outof', 'opponent', 'reason', 'elapsed', 'play_id'], axis = 1)
 def remove_col(df, list_of_col):
@@ -9,6 +15,14 @@ def remove_col(df, list_of_col):
         df = df.drop([items], axis = 1)
     return df
 
+#make df with only 2 min left in fourth quarter and overtime when the game is with in 5 pts
+def clutch_moment(df):
+ 
+    fourth_quarter = df[df['period']>=4]
+    clutch = fouth_quarter[(fouth_quarter['remaining_time'] < '00:02:00') | (fouth_quarter['period']>4)]
+    clutch_time = clutch[clutch['pts_difference']>=-5]
+    clutch_time = clutch_time[clutch_time['pts_difference']<=5]
+    return clutch_time
 
 
 #removing unnecessary rows
