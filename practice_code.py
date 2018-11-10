@@ -131,3 +131,20 @@ def compare_players(df, column1, column2, column3, name1, name2):
             ('Player B:{}'.format(name2), "Shooting Percentage:{}".format(round(percentb1, 3)),'Made: {}'.format(np.sum(b1[column2]=='shot')), 
             'Attempt: {}'.format(b1[column2].count()), "Free Throw:{}".format(round(percentb2, 3)),'Made: {}'.format(np.sum(b2[column3]=='made')), 
            'Attempt: {}'.format(b2[column3].count())))
+
+
+
+
+
+if __name__=="__main__":
+    add_pts()
+    remove_col()
+    clutch_moment()
+    remove_junk_rows()
+    regular_or_playoffs()
+    change_name()
+    get_percent()
+    free_throw_percent()
+    compare_stats()
+    compare_players()
+    
