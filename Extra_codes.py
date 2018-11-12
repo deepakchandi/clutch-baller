@@ -18,3 +18,23 @@ b = b[['player', 'game_id']]
 d = b.merge(rebound_per_player,on='player')
 
 k = d.drop('game_id', axis = 1)
+
+
+
+
+#Changes the 'free throw #' with only 'free throw', make rebounds as just rebounds and changes all the shot types to just shot
+f = []
+def change_name(df, column):
+    values = df[column].values
+    for value in values:
+        if "Free" in value:
+            value = 'Free Throw'
+        elif 'rebound' in value:
+            value = 'rebound'
+        else: # "Shot" or "Dunk" or "Layup" or "Roll" or 'Fadea' in value:
+            value = 'Shot'
+        f.append(value)
+        
+        
+        
+df.dropna(subset=['assist'], inplace=True)        

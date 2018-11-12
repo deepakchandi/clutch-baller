@@ -6,6 +6,12 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
 
+#replace all the empty fields with string 'empty'
+def replace_nan(df):
+    df1 = df.replace(np.nan, '', regex=True)
+    return df1
+
+
 
 #adding new column
 def add_pts(df):
@@ -42,7 +48,6 @@ rows = ['sub', 'timeout', 'uknown', 'unknown', 'Ejection', 'violat', 'traveling'
         'turnover', 'of period', 'lost ball', 'goaltend', 'bad pass', 'illegal', 'jump ball', 'o']
 
 def remove_junk_rows(df, column, list_of_rows):
-
     for item in list_of_rows:
         if item == 'o':
             df = df[df[column] != 'o']
@@ -60,21 +65,6 @@ def regular_or_playoffs(df, col_to_use):
     regular_season = df[df[col_to_use].str.endswith('Season')]
     playoffs = df[df[col_to_use].str.endswith('Playoff')]
     return (regular_season, playoffs)
-
-
-
-#Changes the 'free throw #' with only 'free throw', make rebounds as just rebounds and changes all the shot types to just shot
-f = []
-def change_name(df, column):
-    values = df[column].values
-    for value in values:
-        if "Free" in value:
-            value = 'Free Throw'
-        elif 'rebound' in value:
-            value = 'rebound'
-        else: # "Shot" or "Dunk" or "Layup" or "Roll" or 'Fadea' in value:
-            value = 'Shot'
-        f.append(value)
 
 
 
@@ -140,6 +130,139 @@ def compare_players(df, column1, column2, column3, name1, name2):
             'Attempt: {}'.format(b1[column2].count()), "Free Throw:{}".format(round(percentb2, 3)),'Made: {}'.format(np.sum(b2[column3]=='made')),
            'Attempt: {}'.format(b2[column3].count())))
 
+
+#groupby all the close games by player name and then give you how many games each player played
+#col1: player and col2:game_id
+def get_total_games(df, col1, col2):
+    new_df = (df.groupby([col1, col2]).count()).reset_index()
+    new_df = (new_df.groupby(col1).count()).reset_index()
+    new_df = new_df[[col1,col2]]
+    new_df = new_df.rename(columns={'game_id':'clutch_games'})
+    return new_df
+
+
+
+
+#gives all the offenvie rebound stats
+#USE THE SAME CODE FOR ASSISTS, AND BLOCKS AS WELL
+
+#All the rows with offensive rebounds for all the players
+#col1:type, col2:player, col3:game_id
+#def off_reb_df(df, col1, col2, col3):
+def off_reb_df(df, col):
+    if col == 'type':
+        intangible = df[df['type']=='rebound offensive']
+    if col == 'assist':
+        intangible = df[df['assist']!='']
+    if col == 'block':
+        intangible = df[df['block']!='']
+        
+    return intangible
+    
+    
+def get_intangible(df, col1, col2, col3):
+    
+#counts how many rebounds each player has in total
+            
+    intangible_feature = off_reb_df(df,col1)
+    
+    intangible_dic={}
+    for value in intangible_feature[col2].values:
+        if value not in intangible_dic.keys():
+            intangible_dic[value]=1
+        else:
+            intangible_dic[value]+=1
+            
+    if col1 == 'type':            
+        rebound_per_player = pd.DataFrame.from_dict(intangible_dic,orient = 'index')
+        rebound_per_player = rebound_per_player.reset_index()
+        rebound_per_player = rebound_per_player.rename(columns={'index':'player', 0:'total_rebound'})
+
+        total_games = get_total_games(df, col2,col3)
+
+    #merge two df so we get total games played and total offensive rebounds for each player
+        off_rebounds = total_games.merge(rebound_per_player, on = 'player')
+
+    #create a new column with off_rebund per game
+        off_rebounds['off_rebound/clutch time']=off_rebounds.apply(lambda row: row.total_rebound / row.clutch_games, axis = 1)
+
+        off_rebounds = off_rebounds.sort_values(by = ['total_rebound', 'clutch_games'], ascending=False)
+
+        
+        
+        
+        
+def assits_per_game(df, col1, col2, col3):
+    is_assist = df[df[col1]!='']
+    #is_assist.dropna(subset=['assist'], inplace=True)
+
+
+
+    assist_dic= {}
+    for value in is_assist[col1].values:
+        if value not in assist_dic.keys():
+            assist_dic[value]=1
+        else:
+            assist_dic[value]+=1
+
+    #counts how many rebounds each player has in total
+    assist_per_player = pd.DataFrame.from_dict(assist_dic,orient = 'index')
+    assist_per_player = assist_per_player.reset_index()
+    assist_per_player = assist_per_player.rename(columns={'index':'player', 0:'total_assist'})
+
+
+    total_games = get_total_games(df, col2, col3)
+
+    l = total_games.merge(assist_per_player, on = col2)
+
+
+    #create a new column with assists per game
+
+    l['assist_per_clutch_time']=l.apply(lambda row: row.total_assist / row.clutch_games, axis =1)
+
+    #sorted by amount of games and assists
+
+    l = l.sort_values(by = ['total_assist', 'clutch_games'], ascending=False)
+    
+    return l
+
+
+
+
+#code to get blocks:
+
+def get_all_blocks(df, col1, col2, col3):
+    blocks = df[df[col1]!='']
+    
+    blk_dic= {}
+    for value in blocks['block'].values:
+        if value not in blk_dic.keys():
+            blk_dic[value]=1
+        else:
+            blk_dic[value]+=1
+
+
+    blocks_1 = pd.DataFrame.from_dict(blk_dic,orient = 'index')
+    blocks_1 = blocks_1.reset_index()
+    blocks_1 = blocks_1.rename(columns={'index':'block', 0:'total_blocks'})
+    blocks_1 = blocks_1.rename(columns={'block':'player'})
+
+
+    total_games = get_total_games(df, col2, col3)
+
+    l = total_games.merge(blocks_1, on = col2)
+
+
+
+    #create a new column with assists per game
+
+    l['block_per_clutch_time']=l.apply(lambda row: row.total_blocks / row.clutch_games, axis =1)
+
+    #sorted by amount of games and assists
+
+    l = l.sort_values(by = ['total_blocks', 'clutch_games'], ascending=False)
+    
+    return l
 
 
 
