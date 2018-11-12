@@ -37,4 +37,32 @@ def change_name(df, column):
         
         
         
-df.dropna(subset=['assist'], inplace=True)        
+df.dropna(subset=['assist'], inplace=True)    
+
+
+
+
+##Use this when combining codes for assist, blocks, rebousds:
+
+    intangible_feature = off_reb_df(df,col1)
+    
+    intangible_dic= {}
+    for value in intangible_feature['assist'].values:
+        if value not in blk_dic.keys():
+            intangible_dic[value]=1
+        else:
+            blk_dic[value]+=1
+
+
+    new_df = pd.DataFrame.from_dict(intangible_dic,orient = 'index')
+    new_df = new_df.reset_index()
+    
+    if col1 == 'block':
+        new_df = new_df.rename(columns={'index':'player', 0:'total_blocks'})
+    
+    if col1 == 'assist':
+        new_df = new_df.rename(columns={'index':'player', 0:'total_assist'})
+
+    total_games = get_total_games(df, col2, col3)
+
+    l = total_games.merge(new_df, on = col2)

@@ -131,6 +131,7 @@ def compare_players(df, column1, column2, column3, name1, name2):
            'Attempt: {}'.format(b2[column3].count())))
 
 
+
 #groupby all the close games by player name and then give you how many games each player played
 #col1: player and col2:game_id
 def get_total_games(df, col1, col2):
@@ -143,14 +144,12 @@ def get_total_games(df, col1, col2):
 
 
 
-#gives all the offenvie rebound stats
 #USE THE SAME CODE FOR ASSISTS, AND BLOCKS AS WELL
 
-#All the rows with offensive rebounds for all the players
-#col1:type, col2:player, col3:game_id
-#def off_reb_df(df, col1, col2, col3):
-def off_reb_df(df, col):
-    if col == 'type':
+#col1:off_rebound, col2:player, col3:game_id
+
+def get_intangibles(df, col):
+    if col == 'off_rebound':
         intangible = df[df['type']=='rebound offensive']
     if col == 'assist':
         intangible = df[df['assist']!='']
@@ -159,12 +158,10 @@ def off_reb_df(df, col):
         
     return intangible
     
-    
-def get_intangible(df, col1, col2, col3):
-    
-#counts how many rebounds each player has in total
+#gives all the offenvie rebound stats    
+def off_rebounds_in_clutch(df, col1, col2, col3):
             
-    intangible_feature = off_reb_df(df,col1)
+    intangible_feature = get_intangibles(df,col1)
     
     intangible_dic={}
     for value in intangible_feature[col2].values:
@@ -173,7 +170,7 @@ def get_intangible(df, col1, col2, col3):
         else:
             intangible_dic[value]+=1
             
-    if col1 == 'type':            
+    if col1 == 'off_rebound':            
         rebound_per_player = pd.DataFrame.from_dict(intangible_dic,orient = 'index')
         rebound_per_player = rebound_per_player.reset_index()
         rebound_per_player = rebound_per_player.rename(columns={'index':'player', 0:'total_rebound'})
@@ -186,20 +183,18 @@ def get_intangible(df, col1, col2, col3):
     #create a new column with off_rebund per game
         off_rebounds['off_rebound/clutch time']=off_rebounds.apply(lambda row: row.total_rebound / row.clutch_games, axis = 1)
 
-        off_rebounds = off_rebounds.sort_values(by = ['total_rebound', 'clutch_games'], ascending=False)
+        clutch_rebounds = off_rebounds.sort_values(by = ['total_rebound', 'clutch_games'], ascending=False)
 
-        
+    return clutch_rebounds
         
         
         
 def assits_per_game(df, col1, col2, col3):
-    is_assist = df[df[col1]!='']
-    #is_assist.dropna(subset=['assist'], inplace=True)
-
-
+    
+    intangible_feature = off_reb_df(df,col1)
 
     assist_dic= {}
-    for value in is_assist[col1].values:
+    for value in intangible_feature[col1].values:
         if value not in assist_dic.keys():
             assist_dic[value]=1
         else:
@@ -210,11 +205,9 @@ def assits_per_game(df, col1, col2, col3):
     assist_per_player = assist_per_player.reset_index()
     assist_per_player = assist_per_player.rename(columns={'index':'player', 0:'total_assist'})
 
-
     total_games = get_total_games(df, col2, col3)
 
     l = total_games.merge(assist_per_player, on = col2)
-
 
     #create a new column with assists per game
 
@@ -228,31 +221,26 @@ def assits_per_game(df, col1, col2, col3):
 
 
 
-
 #code to get blocks:
 
 def get_all_blocks(df, col1, col2, col3):
-    blocks = df[df[col1]!='']
+    
+    intangible_feature = off_reb_df(df,col1)
     
     blk_dic= {}
-    for value in blocks['block'].values:
+    for value in intangible_feature['block'].values:
         if value not in blk_dic.keys():
             blk_dic[value]=1
         else:
             blk_dic[value]+=1
 
-
     blocks_1 = pd.DataFrame.from_dict(blk_dic,orient = 'index')
     blocks_1 = blocks_1.reset_index()
-    blocks_1 = blocks_1.rename(columns={'index':'block', 0:'total_blocks'})
-    blocks_1 = blocks_1.rename(columns={'block':'player'})
-
+    blocks_1 = blocks_1.rename(columns={'index':'player', 0:'total_blocks'})
 
     total_games = get_total_games(df, col2, col3)
 
     l = total_games.merge(blocks_1, on = col2)
-
-
 
     #create a new column with assists per game
 
