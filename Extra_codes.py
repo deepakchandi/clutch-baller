@@ -66,3 +66,108 @@ df.dropna(subset=['assist'], inplace=True)
     total_games = get_total_games(df, col2, col3)
 
     l = total_games.merge(new_df, on = col2)
+    
+    
+    
+    
+    
+    
+    
+    
+
+#Try t get everything in one code    
+    
+    
+def clutch_per_game(df, col1, col2, col3):
+
+    intangible_feature = get_intangibles(df,col1)
+
+    rebound_dic = {}
+    assist_dic = {}
+    blk_dic = {}
+
+    for value in intangible_feature[col1].values:
+        if col1 == 'off_rebound':
+            if value not in blk_dic.keys():
+                blk_dic[value]=1
+            else:
+                blk_dic[value]+=1
+
+        if col1 == 'assist':
+            if value not in assist_dic.keys():
+                assist_dic[value]=1
+            else:
+                assist_dic[value]+=1
+
+        if col1 == 'block':
+            if value not in rebound_dic.keys():
+                rebound_dic[value]=1
+            else:
+                rebound_dic[value]+=1
+
+
+        if col1 == 'off_rebound':            
+            rebound_per_player = pd.DataFrame.from_dict(intangible_dic,orient = 'index')
+            rebound_per_player = rebound_per_player.reset_index()
+            rebound_per_player = rebound_per_player.rename(columns={'index':'player', 0:'total_rebound'})
+
+            total_games = get_total_games(df, col2,col3)
+
+        #merge two df so we get total games played and total offensive rebounds for each player
+            off_rebounds = total_games.merge(rebound_per_player, on = 'player')
+
+        #create a new column with off_rebund per game
+            off_rebounds['off_rebound/clutch time']=off_rebounds.apply(lambda row: row.total_rebound / row.clutch_games, axis = 1)
+
+            l = off_rebounds.sort_values(by = ['total_rebound', 'clutch_games'], ascending=False)
+
+
+
+        if col1 == 'assist':
+            assist_per_player = pd.DataFrame.from_dict(assist_dic,orient = 'index')
+            assist_per_player = assist_per_player.reset_index()
+            assist_per_player = assist_per_player.rename(columns={'index':'player', 0:'total_assist'})
+
+            total_games = get_total_games(df, col2, col3)
+
+            c = total_games.merge(assist_per_player, on = col2)
+
+            #create a new column with assists per game
+
+            c['assist_per_clutch_time']=c.apply(lambda row: row.total_assist / row.clutch_games, axis =1)
+
+            #sorted by amount of games and assists
+
+            l = c.sort_values(by = ['total_assist', 'clutch_games'], ascending=False)
+
+
+
+
+
+        if col1 == 'block':
+            blocks_1 = pd.DataFrame.from_dict(blk_dic,orient = 'index')
+            blocks_1 = blocks_1.reset_index()
+            blocks_1 = blocks_1.rename(columns={'index':'player', 0:'total_blocks'})
+
+            total_games = get_total_games(df, col2, col3)
+
+            d = total_games.merge(blocks_1, on = col2)
+
+            #create a new column with assists per game
+
+            d['block_per_clutch_time']=d.apply(lambda row: row.total_blocks / row.clutch_games, axis =1)
+
+            #sorted by amount of games and assists
+
+            l = d.sort_values(by = ['total_blocks', 'clutch_games'], ascending=False)
+
+        return l    
+    
+    
+    
+    
+    
+    
+    
+    fig, axs = plt.subplots(1,0, figsize=(12,8))
+plt.hist(x['pts_difference'], bins= 50);
