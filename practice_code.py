@@ -1,6 +1,8 @@
-#All the codes for getting one player stats or comparing two players
+import numpy as np
+import pandas as pd
 
-#replace all the empty fields with string 'empty'
+
+
 def replace_nan(df):
     df1 = df.replace(np.nan, '', regex=True)
     return df1
