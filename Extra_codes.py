@@ -171,3 +171,24 @@ def clutch_per_game(df, col1, col2, col3):
     
     fig, axs = plt.subplots(1,0, figsize=(12,8))
 plt.hist(x['pts_difference'], bins= 50);
+
+
+
+
+'''Took from individaul.py was used to add extra columns which was later done in practice code'''
+
+
+#adding columns to count shots made, taken, rebounds, FT
+#col is either event_type, type, result
+def add_more_columns(df):
+    new_df = df.copy()
+    new_df['shots_made'] = (new_df['event_type']=='shot')*1
+    new_df['shots_missed'] = (new_df['event_type']=='miss')*1
+    new_df['total_rebound'] = (new_df['event_type']=='rebound')*1
+    new_df['FT_made'] = ((new_df['event_type']=='free throw') & (new_df['result']=='made'))*1
+    new_df['off_rebound'] = ((new_df['event_type']=='rebound') & (new_df['type']=='rebound offensive'))*1
+    new_df['FT_missed'] = ((new_df['event_type']=='free throw') & (new_df['result']=='missed'))*1
+    new_df['total_blocks'] = (new_df['block']!='')*1
+    new_df['assist_count'] = (new_df['assist']!='')*1
+    new_df = new_df.drop(['period',	'away_score', 'home_score', 'pts_difference', 'data_set',	'date',	'remaining_time',	'team',	'event_type'], axis = 1)
+    return new_df

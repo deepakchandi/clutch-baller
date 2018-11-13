@@ -5,6 +5,7 @@ import pandas as pd
 
 def replace_nan(df):
     df1 = df.replace(np.nan, '', regex=True)
+    df1 = df1[df1['player'] != '']
     return df1
 
 
@@ -12,12 +13,21 @@ def replace_nan(df):
 #adding new columns:
 #adds a pts differnce column
 #adds a column that shows who won atht game
+#add player_id
 def add_columns(df):
     df['pts_difference'] = df['away_score']-df['home_score']
     
     df2 = df[(df['event_type']=='end of period') & (df['period']>=4) & (df['pts_difference']!=0)]
     df2['winner'] = np.where(df2.pts_difference >0, 'away', 'home')
     new_df = pd.merge(df,df2[['game_id','winner']],on='game_id', how='left')
+    new_df['shots_made'] = (new_df['event_type']=='shot')*1
+    new_df['shots_missed'] = (new_df['event_type']=='miss')*1
+    new_df['total_rebound'] = (new_df['event_type']=='rebound')*1
+    new_df['FT_made'] = ((new_df['event_type']=='free throw') & (new_df['result']=='made'))*1
+    new_df['off_rebound'] = ((new_df['event_type']=='rebound') & (new_df['type']=='rebound offensive'))*1
+    new_df['FT_missed'] = ((new_df['event_type']=='free throw') & (new_df['result']=='missed'))*1
+    new_df['total_blocks'] = (new_df['block']!='')*1
+    new_df['assist_count'] = (new_df['assist']!='')*1
     return new_df
 
 
@@ -27,6 +37,35 @@ def remove_col(df, list_of_col):
     for items in list_of_col:
         df = df.drop([items], axis = 1)
     return df
+
+
+#removing unnecessary rows
+#rows to remove contain these values:
+#and add player id's
+
+rows = ['sub', 'timeout', 'uknown', 'unknown', 'Ejection', 'violat', 'traveling', 'team reb', 'foul',
+        'turnover', 'of period', 'lost ball', 'goaltend', 'bad pass', 'illegal', 'jump ball', 'o']
+
+def remove_junk_rows(df, column, list_of_rows):
+    for item in list_of_rows:
+        if item == 'o':
+            df = df[df[column] != 'o']
+        else:
+            df=df[~df[column].str.contains(item)]
+    return df
+
+
+#code for one specific row
+#clutch_time = clutch_time[~clutch_time['type'].str.contains('sub')]
+
+
+#
+#Separating playoffs from regular season
+def regular_or_playoffs(df, col_to_use):
+    regular_season = df[df[col_to_use].str.endswith('Season')]
+    playoffs = df[df[col_to_use].str.endswith('Playoff')]
+    return (regular_season, playoffs)
+
 
 #make df with only 2 min left in fourth quarter and overtime when the game is with in 5 pts
 def clutch_moment(df):
@@ -43,93 +82,66 @@ def remove_not_imp_games(df, column):
     df = df.groupby(column).filter(lambda x : len(x)>9)
     return df
 
-#removing unnecessary rows
-#rows to remove contain these values:
-
-rows = ['sub', 'timeout', 'uknown', 'unknown', 'Ejection', 'violat', 'traveling', 'team reb', 'foul',
-        'turnover', 'of period', 'lost ball', 'goaltend', 'bad pass', 'illegal', 'jump ball', 'o']
-
-def remove_junk_rows(df, column, list_of_rows):
-    for item in list_of_rows:
-        if item == 'o':
-            df = df[df[column] != 'o']
-        else:
-            df=df[~df[column].str.contains(item)]
-    return df
-
-#code for one specific row
-#clutch_time = clutch_time[~clutch_time['type'].str.contains('sub')]
-
-
-
-#Separating playoffs from regular season
-def regular_or_playoffs(df, col_to_use):
-    regular_season = df[df[col_to_use].str.endswith('Season')]
-    playoffs = df[df[col_to_use].str.endswith('Playoff')]
-    return (regular_season, playoffs)
-
 
 
 #gives you the shooting percent
 #for me column1 = 'player', column2='event_type', name = player you wanna see
-def get_percent(df, column1, column2, name):
-    a = df[(df[column1]==name) & ((df[column2]== 'miss')|(df[column2]=='shot'))]
-    percent = np.sum(a[column2]=='shot')/a[column2].count()
-    return ("Shooting Percentage:{}".format(round(percent, 3)),'Made: {}'.format(np.sum(a[column2]=='shot')),
-           'Attempt: {}'.format(a[column2].count()))
+def get_percent(df, name):
+    a = df[(df['player']==name) & ((df['event_type']== 'miss')|(df['event_type']=='shot'))]
+    percent = np.sum(a['event_type']=='shot')/a['event_type'].count()
+    return ("Shooting Percentage:{}".format(round(percent, 3)),'Made: {}'.format(np.sum(a['event_type']=='shot')),
+           'Attempt: {}'.format(a['event_type'].count()))
 
 
 #gives yu the free throw numbers for a certain player
 #for me column1 = 'player', column2='event_type', column3= 'result' name = player you wanna see
-def free_throw_percent(df, column1, column2, column3,  name):
-    a = df[(df[column1]==name) & (df[column2] == 'free throw') & ((df[column3]== 'made')|
-                                        (df[column3]=='missed'))][[column1, column2, column3]]
-    percent = np.sum(a[column3]=='made')/a[column3].count()
-    return("Free Throw:{}".format(round(percent, 3)),'Made: {}'.format(np.sum(a[column3]=='made')),
-           'Attempt: {}'.format(a[column3].count()))
+def free_throw_percent(df,  name):
+    a = df[(df['player']==name) & (df['event_type'] == 'free throw') & ((df['result']== 'made')|
+                                        (df['result']=='missed'))]
+    percent = np.sum(a['result']=='made')/a['result'].count()
+    return("Free Throw:{}".format(round(percent, 3)),'Made: {}'.format(np.sum(a['result']=='made')),
+           'Attempt: {}'.format(a['result'].count()))
 
 
 
 
 #compare two players shooting stats:
-def compare_stats(df, column1, column2, name1, name2):
+def compare_stats(df, name1, name2):
 
-    a = df[(df[column1]==name1) & ((df[column2]== 'miss')|(df[column2]=='shot'))]
-    percent1 = np.sum(a[column2]=='shot')/a[column2].count()
+    a = df[(df['player']==name1) & ((df['event_type']== 'miss')|(df['event_type']=='shot'))]
+    percent1 = np.sum(a['event_type']=='shot')/a['event_type'].count()
 
-    b = df[(df[column1]==name2) & ((df[column2]== 'miss')|(df[column2]=='shot'))]
-    percent2 = np.sum(b[column2]=='shot')/b[column2].count()
+    b = df[(df['player']==name2) & ((df['event_type']== 'miss')|(df['event_type']=='shot'))]
+    percent2 = np.sum(b['event_type']=='shot')/b['event_type'].count()
 
-    return ('Player A:{}'.format(name1), "Shooting Percentage:{}".format(round(percent1, 3)),'Made: {}'.format(np.sum(a[column2]=='shot')),
-            'Attempt: {}'.format(a[column2].count()),
-            'Player B:{}'.format(name2), "Shooting Percentage:{}".format(round(percent2, 3)),'Made: {}'.format(np.sum(b[column2]=='shot')),
-            'Attempt: {}'.format(b[column2].count())
+    return ('Player A:{}'.format(name1), "Shooting Percentage:{}".format(round(percent1, 3)),'Made: {}'.format(np.sum(a['event_type']=='shot')),
+            'Attempt: {}'.format(a['event_type'].count()),
+            'Player B:{}'.format(name2), "Shooting Percentage:{}".format(round(percent2, 3)),'Made: {}'.format(np.sum(b['event_type']=='shot')),
+            'Attempt: {}'.format(b['event_type'].count())
            )
 
 
 #compare shooting and free throw stats
-def compare_players(df, column1, column2, column3, name1, name2):
+def compare_players(df, name1, name2):
 
-    a1 = df[(df[column1]==name1) & ((df[column2]== 'miss')|(df[column2]=='shot'))]
-    a2 = df[(df[column1]==name1) & (df[column2] == 'free throw') & ((df[column3]== 'made')|
-                                        (df[column3]=='missed'))]
+    a1 = df[(df['player']==name1) & ((df['event_type']== 'miss')|(df['event_type']=='shot'))]
+    a2 = df[(df['player']==name1) & (df['event_type'] == 'free throw') & ((df['result']== 'made')| (df['result']=='missed'))]
 
-    percenta1 = np.sum(a1[column2]=='shot')/a1[column2].count()
-    percenta2 = np.sum(a2[column3]=='made')/a2[column3].count()
+    percenta1 = np.sum(a1['event_type']=='shot')/a1['event_type'].count()
+    percenta2 = np.sum(a2['result']=='made')/a2['result'].count()
 
-    b1 = df[(df[column1]==name2) & ((df[column2]== 'miss')|(df[column2]=='shot'))]
-    b2 = df[(df[column1]==name2) & (df[column2] == 'free throw') & ((df[column3]== 'made')|
-                                        (df[column3]=='missed'))]
+    b1 = df[(df['player']==name2) & ((df['event_type']== 'miss')|(df['event_type']=='shot'))]
+    b2 = df[(df['player']==name2) & (df['event_type'] == 'free throw') & ((df['result']== 'made')|(df['result']=='missed'))]
 
-    percentb1 = np.sum(b1[column2]=='shot')/b1[column2].count()
-    percentb2 = np.sum(b2[column3]=='made')/b2[column3].count()
+    percentb1 = np.sum(b1['event_type']=='shot')/b1['event_type'].count()
+    percentb2 = np.sum(b2['result']=='made')/b2['result'].count()
 
-    s = ((' ', 'Shooting Percentage', 'Shots Made', 'Shots Attempted', 'FT Percentage', 'FT Made','FT Attempts'),(name1, (round(percenta1, 3)),(np.sum(a1[column2]=='shot')),
-            (a1[column2].count()), (round(percenta2, 3)),(np.sum(a2[column3]=='made')),
-           (a2[column3].count())),
-            (name2, (round(percentb1, 3)),(np.sum(b1[column2]=='shot')),
-            (b1[column2].count()), (round(percentb2, 3)),(np.sum(b2[column3]=='made')),
-           (b2[column3].count())))
+    s = ((' ', 'Shooting Percentage', 'Shots Made', 'Shots Attempted', 'FT Percentage', 'FT Made','FT Attempts'),(name1, (round(percenta1, 3)),(np.sum(a1['event_type']=='shot')),
+            (a1['event_type'].count()), (round(percenta2, 3)),(np.sum(a2['result']=='made')),
+           (a2['result'].count())),
+            (name2, (round(percentb1, 3)),(np.sum(b1['event_type']=='shot')),
+            (b1['event_type'].count()), (round(percentb2, 3)),(np.sum(b2['result']=='made')),
+           (b2['result'].count())))
     
     g = pd.DataFrame(list(s)).T
     g.columns = g.iloc[0]
@@ -138,16 +150,25 @@ def compare_players(df, column1, column2, column3, name1, name2):
     return g
 
     
-
+    
+    
 
 #groupby all the close games by player name and then give you how many games each player played
 #col1: player and col2:game_id
-def get_total_games(df, col1, col2):
-    new_df = (df.groupby([col1, col2]).count()).reset_index()
-    new_df = (new_df.groupby(col1).count()).reset_index()
-    new_df = new_df[[col1,col2]]
-    new_df = new_df.rename(columns={'game_id':'clutch_games'})
+def get_total_games(df):
+    new_df = (df.groupby(['player', 'game_id']).count()).reset_index()
+    new_df = (new_df.groupby('player').count()).reset_index()
+    new_df = new_df[['player','game_id']]
+    new_df = new_df.rename(columns={'game_id':'total_games'})
     return new_df
+
+
+
+
+
+
+
+
 
 
 
@@ -259,44 +280,6 @@ def get_all_blocks(df, col1, col2, col3):
     l = l.sort_values(by = ['player','total_blocks', 'clutch_games'])
     
     return round(l, 3)
-
-
-'''
-#work on this 
-def complete_comparison(df, column1, column2, column3, name1, name2):
-
-    a1 = df[(df[column1]==name1) & ((df[column2]== 'miss')|(df[column2]=='shot'))]
-    a2 = df[(df[column1]==name1) & (df[column2] == 'free throw') & ((df[column3]== 'made')|
-                                        (df[column3]=='missed'))]
-
-    percenta1 = np.sum(a1[column2]=='shot')/a1[column2].count()
-    percenta2 = np.sum(a2[column3]=='made')/a2[column3].count()
-
-    b1 = df[(df[column1]==name2) & ((df[column2]== 'miss')|(df[column2]=='shot'))]
-    b2 = df[(df[column1]==name2) & (df[column2] == 'free throw') & ((df[column3]== 'made')|
-                                        (df[column3]=='missed'))]
-
-    percentb1 = np.sum(b1[column2]=='shot')/b1[column2].count()
-    percentb2 = np.sum(b2[column3]=='made')/b2[column3].count()
-
-
-    s = ((name1, "Shooting Percentage:{}".format(round(percenta1, 3)),'Made: {}'.format(np.sum(a1[column2]=='shot')),
-            'Attempt: {}'.format(a1[column2].count()), "Free Throw:{}".format(round(percenta2, 3)),'Made: {}'.format(np.sum(a2[column3]=='made')),
-           'Attempt: {}'.format(a2[column3].count())),
-            (name2, "Shooting Percentage:{}".format(round(percentb1, 3)),'Made: {}'.format(np.sum(b1[column2]=='shot')),
-            'Attempt: {}'.format(b1[column2].count()), "Free Throw:{}".format(round(percentb2, 3)),'Made: {}'.format(np.sum(b2[column3]=='made')),
-           'Attempt: {}'.format(b2[column3].count())))
-    
-    g = pd.DataFrame(list(s)).T
-    g.columns = g.iloc[0]
-    g.drop(0, inplace=True)
-    return g
-
-
-'''
-
-
-
 
 
 
