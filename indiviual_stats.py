@@ -42,18 +42,18 @@ def blk_stats(df):
     blk = df.groupby('block').sum()
     blk.reset_index(level=0, inplace=True)
     blk = blk.rename(columns={'block':'player'})
-    blk = blk.drop(['points', 'shots_made',	'FT_made',	'FT_missed', 'off_rebound',	'total_rebound',	'shots_missed', 'assist_count'], axis =1)
+    blk = blk.drop(['points', 'shots_made',	'FT_made',	'FT_missed', 'off_rebound',	'total_rebound','shots_missed', 'assist_count'], axis =1)
     return blk
 
 def player_names(df):
     plr_name = df.groupby(['player']).sum()
     plr_name.reset_index(level=0, inplace=True)
     plr_name = plr_name.drop('points', axis = 1)
+    plr_name = plr_name.drop(['assist_count', 'total_blocks'], axis = 1)
     return plr_name
     
 def merge_all(a,b,c):   
     result = pd.merge(a, b, on='player', how = 'outer')
-    #result_1 = pd.merge(result, c, on='player', how = 'outer')
-    #result_2 = result_1.fillna(0)
-    #result = result.drop(['period_x','away_score_x',	'home_score_x',	'points_x',	'pts_difference_x'],axis = 1) 
-    return result
+    result_1 = pd.merge(result, c, on='player', how = 'outer')
+    result_2 = result_1.fillna(0)
+    return result_2
