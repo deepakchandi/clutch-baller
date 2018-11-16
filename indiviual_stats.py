@@ -77,6 +77,7 @@ def add_ids(df):
     x = df.groupby('player').count().reset_index()
     x = x[['player']]
     x = x.assign(id=(x ['player'] ).astype('category').cat.codes)
+    x = x.rename(columns={'id': 'player_id'})
     return x
 
 #df2 = ids_df
