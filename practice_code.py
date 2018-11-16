@@ -3,13 +3,6 @@ import pandas as pd
 
 
 
-def replace_nan(df):
-    df1 = df.replace(np.nan, '', regex=True)
-    df1 = df1[df1['player'] != '']
-    return df1
-
-
-
 #adding new columns:
 #adds a pts differnce column
 #adds a column that shows who won atht game
@@ -17,7 +10,7 @@ def replace_nan(df):
 def add_columns(df):
     df['pts_difference'] = df['away_score']-df['home_score']
     
-    df2 = df[(df['event_type']=='end of period') & (df['period']>=4) & (df['pts_difference']!=0)]
+    df2 = df[((df['event_type']=='end of period') & (df['period']>=4) & (df['pts_difference']!=0))]
     df2['winner'] = np.where(df2.pts_difference >0, 'away', 'home')
     new_df = pd.merge(df,df2[['game_id','winner']],on='game_id', how='left')
     new_df['shots_made'] = (new_df['event_type']=='shot')*1
@@ -28,11 +21,42 @@ def add_columns(df):
     new_df['FT_missed'] = ((new_df['event_type']=='free throw') & (new_df['result']=='missed'))*1
     new_df['total_blocks'] = (new_df['block']!='')*1
     new_df['assist_count'] = (new_df['assist']!='')*1
+    
+    ##points made/ attempted
+    new_df['3pt'] = (new_df['points'] == 3)*1
+    
+    new_df['3pt_shots'] = new_df['description'].str.contains('3PT')*1
+    
+    #how many easy shots they made
+    new_df['Dunk/Layup'] = ((new_df['points'] == 2) & ((new_df['type'].str.contains('Layup')) | (new_df['type'].str.contains('Dunk')) | new_df['type'].str.contains('Finger Roll'))) *1
+    
+    new_df['Dunk/Layup_attempts'] = ((new_df['type'].str.contains('Layup') | new_df['type'].str.contains('Dunk') | new_df['type'].str.contains('Finger Roll')))*1
+        
+    
+    #how many not easy 2pointers they made
+    new_df['2pt_med/hard'] = (new_df['type'].str.contains('Fadeaway')| (new_df['type'].str.contains('Shot')  & (new_df['points'] == 2)))*1
+    
+    new_df['med/hard_attempts'] = (((new_df['points'] != 3) & new_df['type'].str.contains('Shot') | (new_df['points'] != 3) & new_df['type'].str.contains('Fadeaway'))*1)- (new_df['3pt_shots'] - new_df['3pt'])
+    
+    
+    #how many total toatl 2 pointers they made
+    new_df['2pt_fg_made'] = (new_df['points']==2)*1
+
+    #how many 2pt fg attempted
+    new_df['2fg_attempts'] = (new_df['shots_made'] + new_df['shots_missed']) - new_df['3pt_shots']
+    
     return new_df
+
+
+
+def replace_nan(df):
+    df1 = df.replace(np.nan, '', regex=True)
+    return df1
 
 
 #removing columns
 #col_to_remove = (['a1', 'a2', 'a3','a4','a5','h1','h2','h3','h4','h5', 'play_length', 'entered', 'left', 'possession', 'shot_distance', 'original_x', 'original_y', 'converted_x', 'converted_y', 'num', 'away', 'home', 'outof', 'opponent', 'reason', 'elapsed', 'play_id'], axis = 1)
+
 def remove_col(df, list_of_col):
     for items in list_of_col:
         df = df.drop([items], axis = 1)
@@ -43,15 +67,20 @@ def remove_col(df, list_of_col):
 #rows to remove contain these values:
 #and add player id's
 
-rows = ['sub', 'timeout', 'uknown', 'unknown', 'Ejection', 'violat', 'traveling', 'team reb', 'foul',
-        'turnover', 'of period', 'lost ball', 'goaltend', 'bad pass', 'illegal', 'jump ball', 'o']
+#rows = ['sub', 'timeout', 'uknown', 'unknown', 'Ejection', 'violat', 'traveling', 'team reb', 'foul', 'turnover', 'of period', 'lost ball', 'goaltend', 'bad pass', 'illegal', 'jump ball', 'o'] if col = 'type
 
-def remove_junk_rows(df, column, list_of_rows):
-    for item in list_of_rows:
-        if item == 'o':
-            df = df[df[column] != 'o']
-        else:
-            df=df[~df[column].str.contains(item)]
+
+#if col is 'event_type'
+#rows = ['timeout', 'sub', 'ejection', 'violation', 'turnover', 'foul', 'jump ball' ]
+
+
+def remove_junk_rows(df, column):
+    rows = ['timeout', 'sub', 'ejection', 'violation', 'turnover', 'foul', 'jump ball', 'of period', 'unknown' ]
+    rows1= ['unknown', 'team rebo']
+    for item in rows:
+        df=df[~df[column].str.contains(item)]
+    for i in rows1:
+        df = df[~df['type'].str.contains(i)]
     return df
 
 
@@ -95,7 +124,7 @@ def get_percent(df, name):
 
 #gives yu the free throw numbers for a certain player
 #for me column1 = 'player', column2='event_type', column3= 'result' name = player you wanna see
-def free_throw_percent(df,  name):
+def free_throw_percent(df,name):
     a = df[(df['player']==name) & (df['event_type'] == 'free throw') & ((df['result']== 'made')|
                                         (df['result']=='missed'))]
     percent = np.sum(a['result']=='made')/a['result'].count()
