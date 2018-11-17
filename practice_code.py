@@ -8,8 +8,8 @@ import pandas as pd
 #adds a column that shows who won atht game
 #add player_id
 def add_columns(df):
-    df = df.replace(np.nan, '', regex=True)
     df['pts_difference'] = df['away_score']-df['home_score']
+    
     df2 = df[((df['event_type']=='end of period') & (df['period']>=4) & (df['pts_difference']!=0))]
     df2['winner'] = np.where(df2.pts_difference >0, 'away', 'home')
     new_df = pd.merge(df,df2[['game_id','winner']],on='game_id', how='left')
@@ -189,8 +189,7 @@ def get_total_games(df):
     new_df = (new_df.groupby('player').count()).reset_index()
     new_df = new_df[['player','game_id']]
     new_df = new_df.rename(columns={'game_id':'total_games'})
-    x = new_df.sort_values('total_games', ascending=False)
-    return x
+    return new_df
 
 
 
