@@ -192,3 +192,18 @@ def add_more_columns(df):
     new_df['assist_count'] = (new_df['assist']!='')*1
     new_df = new_df.drop(['period',	'away_score', 'home_score', 'pts_difference', 'data_set',	'date',	'remaining_time',	'team',	'event_type'], axis = 1)
     return new_df
+
+
+
+
+
+
+
+#if reg season was clutch
+
+full_reg_stats['reg_all_shots'] = (full_reg_stats['shooting%'] > full_reg_stats['league_reg_all_shot_avg']) & (full_reg_stats['total_shots']>15)
+full_reg_stats['reg_2pt'] = (full_reg_stats['2pt%'] > full_reg_stats['league_reg_2pt_avg']) & (full_reg_stats['total_shots']>15)
+full_reg_stats['reg_3pt'] = (full_reg_stats['3pt%'] > full_reg_stats['league_reg_3pt_avg']) & (full_reg_stats['total_shots']>15)
+full_reg_stats['reg_hard2'] = (full_reg_stats['med/hard_fg%'] > full_reg_stats['league_reg_hard2pt_avg']) & (full_reg_stats['total_shots']>15)
+full_reg_stats['reg_easy2'] = (full_reg_stats['easy_shot%'] > full_reg_stats['league_reg_easy2pt_avg']) & (full_reg_stats['total_shots']>15)
+                                 

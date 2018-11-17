@@ -13,7 +13,6 @@ def add_columns(df):
     df2 = df[((df['event_type']=='end of period') & (df['period']>=4) & (df['pts_difference']!=0))]
     df2['winner'] = np.where(df2.pts_difference >0, 'away', 'home')
     new_df = pd.merge(df,df2[['game_id','winner']],on='game_id', how='left')
-    new_df['shots_made'] = (new_df['event_type']=='shot')*1
     new_df['shots_missed'] = (new_df['event_type']=='miss')*1
     new_df['total_rebound'] = (new_df['event_type']=='rebound')*1
     new_df['FT_made'] = ((new_df['event_type']=='free throw') & (new_df['result']=='made'))*1
@@ -21,6 +20,10 @@ def add_columns(df):
     new_df['FT_missed'] = ((new_df['event_type']=='free throw') & (new_df['result']=='missed'))*1
     new_df['total_blocks'] = (new_df['block']!='')*1
     new_df['assist_count'] = (new_df['assist']!='')*1
+    
+    
+    new_df['shots_made'] = (new_df['event_type']=='shot')*1
+    
     
     ##points made/ attempted
     new_df['3pt'] = (new_df['points'] == 3)*1
@@ -34,13 +37,10 @@ def add_columns(df):
         
     
     #how many not easy 2pointers they made
-    new_df['2pt_med/hard'] = (new_df['type'].str.contains('Fadeaway')| (new_df['type'].str.contains('Shot')  & (new_df['points'] == 2)))*1
+    new_df['2pt_med/hard'] = ((new_df['type'].str.contains('Fadeaway') & (new_df['points'] == 2))| (new_df['type'].str.contains('Shot')  & (new_df['points'] == 2)))*1
     
     new_df['med/hard_attempts'] = (((new_df['points'] != 3) & new_df['type'].str.contains('Shot') | (new_df['points'] != 3) & new_df['type'].str.contains('Fadeaway'))*1)- (new_df['3pt_shots'] - new_df['3pt'])
     
-    
-    #how many total toatl 2 pointers they made
-    new_df['2pt_fg_made'] = (new_df['points']==2)*1
 
     #how many 2pt fg attempted
     new_df['2fg_attempts'] = (new_df['shots_made'] + new_df['shots_missed']) - new_df['3pt_shots']
