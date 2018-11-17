@@ -1,5 +1,3 @@
-#functions for getting all the players stats as one df
-
 import numpy as np
 import pandas as pd
 
@@ -114,24 +112,9 @@ def add_league_avg(df):
 
 
 def is_clutch(df):
-<<<<<<< HEAD
-<<<<<<< HEAD
     df['clutch_all_shots'] = (df['shooting%'] > df['league_clutch_all_shot_avg']) & (df['total_shots']>50)
     df['clutch_2pt'] = (df['2pt%'] > df['league_clutch_2pt_avg']) & (df['2fg_attempts']>35)
     df['clutch_3pt'] = (df['3pt%'] > df['league_clutch_3pt_avg']) & (df['3pt_shots']>25)
     df['clutch_hard2'] = (df['med/hard_fg%'] > df['league_clutch_hard2pt_avg']) & (df['med/hard_attempts']>20)
     df['clutch_easy2'] = (df['easy_shot%'] > df['league_clutch_easy2pt_avg']) & (df['Dunk/Layup_attempts']>20)
-=======
-=======
->>>>>>> 7b365388b09e54c746e7f5f6be3effb5c75e68e2
-    df['clutch_all_shots'] = (df['shooting%'] > df['league_all_shot_avg']) & (df['total_shots']>15)
-    df['clutch_2pt'] = (df['2pt%'] > df['league_2pt_avg']) & (df['total_shots']>15)
-    df['clutch_3pt'] = (df['3pt%'] > df['league_3pt_avg']) & (df['total_shots']>15)
-    df['clutch_hard2'] = (df['med/hard_fg%'] > df['league_hard2pt_avg']) & (df['total_shots']>15)
-    df['clutch_easy2'] = (df['easy_shot%'] > df['league_easy2pt_avg']) & (df['total_shots']>15)
-    
-<<<<<<< HEAD
->>>>>>> 7b365388b09e54c746e7f5f6be3effb5c75e68e2
-=======
->>>>>>> 7b365388b09e54c746e7f5f6be3effb5c75e68e2
     return df
