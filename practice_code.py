@@ -189,7 +189,8 @@ def get_total_games(df):
     new_df = (new_df.groupby('player').count()).reset_index()
     new_df = new_df[['player','game_id']]
     new_df = new_df.rename(columns={'game_id':'total_games'})
-    return new_df
+    x = new_df.sort_values('total_games', ascending = False)
+    return x
 
 
 

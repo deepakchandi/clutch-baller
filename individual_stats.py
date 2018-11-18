@@ -112,9 +112,10 @@ def add_league_avg(df):
 
 
 def is_clutch(df):
-    df['clutch_all_shots'] = (df['shooting%'] > df['league_clutch_all_shot_avg']) & (df['total_shots']>50)
-    df['clutch_2pt'] = (df['2pt%'] > df['league_clutch_2pt_avg']) & (df['2fg_attempts']>35)
-    df['clutch_3pt'] = (df['3pt%'] > df['league_clutch_3pt_avg']) & (df['3pt_shots']>25)
-    df['clutch_hard2'] = (df['med/hard_fg%'] > df['league_clutch_hard2pt_avg']) & (df['med/hard_attempts']>20)
-    df['clutch_easy2'] = (df['easy_shot%'] > df['league_clutch_easy2pt_avg']) & (df['Dunk/Layup_attempts']>20)
+    df = df[df['total_games']>82]
+    df['clutch_all_shots'] = (df['shooting%'] > df['league_all_shot_avg']) & (df['total_shots']>50)
+    df['clutch_2pt'] = (df['2pt%'] > df['league_2pt_avg']) & (df['2fg_attempts']>35)
+    df['clutch_3pt'] = (df['3pt%'] > df['league_3pt_avg']) & (df['3pt_shots']>25)
+    df['clutch_hard2'] = (df['med/hard_fg%'] > df['league_hard2pt_avg']) & (df['med/hard_attempts']>20)
+    df['clutch_easy2'] = (df['easy_shot%'] > df['league_easy2pt_avg']) & (df['Dunk/Layup_attempts']>20)
     return df
