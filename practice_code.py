@@ -50,12 +50,12 @@ def add_columns(df):
 
 
 def replace_nan(df):
-    df1 = df.replace(np.nan, '', regex=True)
-    return df1
+    df = df.replace(np.nan, '', regex=True)
+    return df
 
 
 #removing columns
-#col_to_remove = (['a1', 'a2', 'a3','a4','a5','h1','h2','h3','h4','h5', 'play_length', 'entered', 'left', 'possession', 'shot_distance', 'original_x', 'original_y', 'converted_x', 'converted_y', 'num', 'away', 'home', 'outof', 'opponent', 'reason', 'elapsed', 'play_id'], axis = 1)
+#col_to_remove = ['a1', 'a2', 'a3','a4','a5','h1','h2','h3','h4','h5', 'play_length', 'entered', 'left', 'possession', 'shot_distance', 'original_x', 'original_y', 'converted_x', 'converted_y', 'num', 'away', 'home', 'outof', 'opponent', 'reason', 'elapsed', 'play_id']
 
 def remove_col(df, list_of_col):
     for items in list_of_col:
