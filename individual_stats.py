@@ -119,3 +119,21 @@ def is_clutch(df):
     df['clutch_hard2'] = (df['med/hard_fg%'] > df['league_hard2pt_avg']) & (df['med/hard_attempts']>20)
     df['clutch_easy2'] = (df['easy_shot%'] > df['league_easy2pt_avg']) & (df['Dunk/Layup_attempts']>20)
     return df
+
+
+
+
+def clutch_for_season(df):
+    df = df[df['total_games']>8]
+    df['clutch_all_shots'] = (df['shooting%'] > df['league_all_shot_avg']) & (df['total_shots']>10)
+    df['clutch_2pt'] = (df['2pt%'] > df['league_2pt_avg'])
+    df['clutch_3pt'] = (df['3pt%'] > df['league_3pt_avg'])
+    df['clutch_hard2'] = (df['med/hard_fg%'] > df['league_hard2pt_avg'])
+    df['clutch_easy2'] = (df['easy_shot%'] > df['league_easy2pt_avg'])
+    return df
+    
+    
+    
+    
+    
+    
