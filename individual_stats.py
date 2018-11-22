@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import random
 
 
 
@@ -8,8 +9,8 @@ import pandas as pd
 #col is points
 def object_to_int(df, col):
     new_df = df.convert_objects(convert_numeric=True)
-    new_df[col] = new_df[col].fillna(-1).astype(np.int64)
-    new_df = new_df.drop(['period',	'away_score', 'home_score', 'pts_difference', 'data_set',	'date',	'remaining_time','team','event_type'], axis = 1)
+    df['3pt_shots'] = df['3pt_shots'].astype(np.int64)
+    new_df = df.drop(['period',	'away_score', 'home_score', 'pts_difference', 'data_set',	'date',	'remaining_time','team','event_type'], axis = 1)
     return new_df
 
 
@@ -19,7 +20,7 @@ def assist_stats(df):
     ast = df.groupby('assist').sum()
     ast.reset_index(level=0, inplace=True)
     ast = ast.rename(columns={'assist':'player'})
-    ast = ast.drop([ 'points','shots_made', 'FT_made', 'FT_missed', 'off_rebound','total_rebound', 'shots_missed', 'total_blocks', '3pt', '3pt_shots', 'Dunk/Layup', '2pt_med/hard', '2fg_attempts', 'Dunk/Layup_attempts', 'med/hard_attempts'], axis =1)
+    ast = ast.drop(['points','shots_made', 'FT_made', 'FT_missed', 'off_rebound','total_rebound', 'shots_missed', 'total_blocks', '3pt', '3pt_shots', 'Dunk/Layup', '2pt_med/hard', '2fg_attempts', 'Dunk/Layup_attempts', 'med/hard_attempts'], axis =1)
     return ast
 
 def blk_stats(df):
@@ -65,10 +66,10 @@ def get_per_game_stats(df):
     df['total_shots'] = (df['shots_made'] + df['shots_missed'])
     df['shooting%'] = round((df['shots_made']/(df['shots_made'] + df['shots_missed'])*100), 1)
     df['FT%'] = round((df['FT_made']/(df['FT_made']+ df['FT_missed']) * 100),1)
-    df['APG'] = round(df['assist_count']/(df['total_games']), 1)
-    df['BPG'] = round(df['total_blocks']/(df['total_games']), 1) 
-    df['ORPG'] = round(df['off_rebound']/(df['total_games'] ), 1)
-    df['RPG'] = round(df['total_rebound']/(df['total_games']), 1)
+    df['APG'] = round(df['assist_count']/(df['total_games']), 2)
+    df['BPG'] = round(df['total_blocks']/(df['total_games']), 2) 
+    df['ORPG'] = round(df['off_rebound']/(df['total_games'] ), 2)
+    df['RPG'] = round(df['total_rebound']/(df['total_games']), 2)
     
     df['easy_shot%'] = round((df['Dunk/Layup'] / df['Dunk/Layup_attempts']*100),1)
     df['2pt%'] = round((df['2pt_fg_made'] / df['2fg_attempts']*100),1)
@@ -79,10 +80,13 @@ def get_per_game_stats(df):
 
 
 
+#USE THIS FOR RANDOM IDS
+
+
 def add_ids(df):
     x = df.groupby('player').count().reset_index()
     x = x[['player']]
-    x = x.assign(id=(x ['player'] ).astype('category').cat.codes)
+    x['player_id'] = [random.randint(1,10000000) for k in x.index]
     return x
 
 #df2 = ids_df
@@ -93,12 +97,34 @@ def merge_ids(df,df2):
     x_df = new_df[new_df['total_shots']>=1]
     x_df = x_df.fillna(0)
     #turn floats into int64 for columns that are not %
-    lst = ['total_games','shots_made', 'shots_missed','3pt', '3pt_shots',	'Dunk/Layup','Dunk/Layup_attempts', '2pt_med/hard', 'med/hard_attempts', '2fg_attempts', 'FT_made', 'FT_missed', 'assist_count', 'off_rebound', 'total_rebound', 'total_blocks', '2pt_fg_made', 'total_shots']
+    lst = ['player_id','total_games','shots_made', 'shots_missed','3pt', '3pt_shots',	'Dunk/Layup','Dunk/Layup_attempts', '2pt_med/hard', 'med/hard_attempts', '2fg_attempts', 'FT_made', 'FT_missed', 'assist_count', 'off_rebound', 'total_rebound', 'total_blocks', '2pt_fg_made', 'total_shots']
     for y in lst:
         x_df[y] = x_df[y].astype(np.int64)
     return x_df
 
 
+#df = df you gonna use to find turnovers
+#and the new_df is a df with plyer names and total turnovers
+def add_turnovers(df):
+    df['pts_difference'] = df['away_score'] - df['home_score']
+    df = pc.clutch_moment(df)
+    x = df.groupby('player').count()
+    new_df = x[['event_type']]
+    new_df.reset_index(level=0, inplace=True)
+    new_df = turnover_data.rename(columns={'event_type':'total_turnovers'})
+    return new_df
+
+#merge turnovers with the df of your choice
+#df = the df you want and new_df is turnover df
+def merge_turnovers(df,new_df):
+    df = pd.merge(df,new_df,on='player', how = 'left')
+    df = df.fillna(0)
+    df['TPG'] = round(df['total_turnovers'] / df['total_games'],2)
+    
+    return new_df
+    
+    
+    
 
 def add_league_avg(df):
     df = df.fillna(0)
@@ -107,31 +133,47 @@ def add_league_avg(df):
     df['league_3pt_avg'] = round((df['3pt'].sum())/(df['3pt_shots'].sum())*100,1)
     df['league_hard2pt_avg'] = round((df['2pt_med/hard'].sum())/(df['med/hard_attempts'].sum())*100,1)
     df['league_easy2pt_avg'] = round((df['Dunk/Layup'].sum())/(df['Dunk/Layup_attempts'].sum())*100,1)
+    #df['league_ast_avg'] = round((df['assist_count'].sum())/ (df['total_games'].sum()), 2)
+    #df['league_blks_avg'] = round((df['total_blocks'].sum())/ (df['total_games'].sum()), 2)
+    #df['league_oreb_avg'] = round((df['off_rebound'].sum())/ (df['total_games'].sum()), 2)
+    df['league_ft%'] = round((df['FT_made'].sum()/ (df['FT_made'].sum() + df['FT_missed'].sum())*100), 1)
     
     return df
 
 
-def is_clutch(df):
-    df = df[df['total_games']>82]
-    df['clutch_all_shots'] = (df['shooting%'] > df['league_all_shot_avg']) & (df['total_shots']>50)
-    df['clutch_2pt'] = (df['2pt%'] > df['league_2pt_avg']) & (df['2fg_attempts']>35)
-    df['clutch_3pt'] = (df['3pt%'] > df['league_3pt_avg']) & (df['3pt_shots']>25)
-    df['clutch_hard2'] = (df['med/hard_fg%'] > df['league_hard2pt_avg']) & (df['med/hard_attempts']>20)
-    df['clutch_easy2'] = (df['easy_shot%'] > df['league_easy2pt_avg']) & (df['Dunk/Layup_attempts']>20)
-    return df
-
-
-
-
-def clutch_for_season(df):
-    df = df[df['total_games']>8]
-    df['clutch_all_shots'] = (df['shooting%'] > df['league_all_shot_avg']) & (df['total_shots']>10)
-    df['clutch_2pt'] = (df['2pt%'] > df['league_2pt_avg'])
-    df['clutch_3pt'] = (df['3pt%'] > df['league_3pt_avg'])
-    df['clutch_hard2'] = (df['med/hard_fg%'] > df['league_hard2pt_avg'])
-    df['clutch_easy2'] = (df['easy_shot%'] > df['league_easy2pt_avg'])
+#assign weights to each type of shot
+def add_scores(df):
+    df['3pt_score'] = (df['3pt']*5)/(df['3pt_shots']*2)
+    df['Hard_2Score'] = (df['2pt_med/hard']*3)/(df['med/hard_attempts']*2)
+    df['Easy_2Score'] = (df['Dunk/Layup']*2)/(df['Dunk/Layup_attempts']*2)
+    df['FT_score'] = (df['FT_made']*1)/(df['FT_made'] + df['FT_missed'])
+    df = df.fillna(0)
+    df['total_score'] = df['3pt_score'] + df['Hard_2Score'] + df['Easy_2Score'] + df['FT_score'] - df['TPG']
     return df
     
+    
+    
+def is_clutch(df):    
+    df['clutch_score'] = df['total_score']/4
+    df['is_clutch'] = ((df['clutch_score'] > df['clutch_score'].mean()) & (df['shots_made']>20)& (df['shooting%'] > df['league_all_shot_avg']))*1
+    return df
+
+
+
+
+#only for final_test
+def change_objects(df):
+    df['game_id'] = df['game_id'].astype('object')
+    #df = df.convert_objects(convert_numeric=True)
+    
+    df['points'].replace(to_replace='', value= -1, inplace=True)
+    df['2fg_attempts'] = df['2fg_attempts'].astype(np.int64)
+    df['3pt_shots'] = df['3pt_shots'].astype(np.int64)
+    df['med/hard_attempts'] = df['med/hard_attempts'].astype(np.int64)
+    df = df.drop(['period',	'away_score', 'home_score', 'pts_difference', 'data_set',	'date',	'remaining_time','team','event_type'], axis = 1)
+    return df
+
+
     
     
     

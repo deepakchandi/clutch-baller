@@ -206,4 +206,29 @@ full_reg_stats['reg_2pt'] = (full_reg_stats['2pt%'] > full_reg_stats['league_reg
 full_reg_stats['reg_3pt'] = (full_reg_stats['3pt%'] > full_reg_stats['league_reg_3pt_avg']) & (full_reg_stats['total_shots']>15)
 full_reg_stats['reg_hard2'] = (full_reg_stats['med/hard_fg%'] > full_reg_stats['league_reg_hard2pt_avg']) & (full_reg_stats['total_shots']>15)
 full_reg_stats['reg_easy2'] = (full_reg_stats['easy_shot%'] > full_reg_stats['league_reg_easy2pt_avg']) & (full_reg_stats['total_shots']>15)
+
+
+
+
+
+
+#Old code for ic_clucth
+
+def is_clutch(df):
+    df = df[df['total_games']>41]
+    df['clutch_all_shots'] = (df['shooting%'] > df['league_all_shot_avg']) & (df['total_shots']>30)
+    df['clutch_2pt'] = (df['2pt%'] > df['league_2pt_avg']) & (df['2fg_attempts']>25)
+    df['clutch_3pt'] = (df['3pt%'] > df['league_3pt_avg']) & (df['3pt_shots']>15)
+    df['clutch_hard2'] = (df['med/hard_fg%'] > df['league_hard2pt_avg']) & (df['med/hard_attempts']>10)
+    df['clutch_easy2'] = (df['easy_shot%'] > df['league_easy2pt_avg']) & (df['Dunk/Layup_attempts']>10)
+    
+    df['clutch FT'] = df['FT%'] > df['league_ft%']
+    df['clutch_oreb'] = df['ORPG'] > df['league_oreb_avg']
+    df['clutch_blks'] = df['BPG'] > df['league_blks_avg']
+    df['clutch_asts'] = df['APG'] > df['league_ast_avg']
+#    df['clutch_TO'] = df['TPG'] < df['league_TO_avg']
+#    df['clutch_ejections'] = df['ejections'] < df['ejections/career']
+    
+
+
                                  
