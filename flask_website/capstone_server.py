@@ -9,6 +9,9 @@ app = Flask(__name__)
 def home():
     return render_template('home.html')
 
+@app.route("/compare")
+def compare():
+    return render_template('compare.html')
 
 # load the model
 #model = pickle.load(open('linreg.p','rb'))

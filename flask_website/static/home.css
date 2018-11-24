@@ -1,0 +1,21 @@
+#HomeHeader {
+background-color: lightblue;
+border: 3px dashed green;
+margin: 25px;
+padding: 25px;
+}
+
+
+#HomeHeader2 {
+background-color: yellow;
+border: 3px dashed red;
+margin: 25px;
+padding: 25px;
+}
+
+#span {
+background-color: pink;
+border: 3px dashed yellow;
+margin: 25px;
+padding: 25px;
+}
