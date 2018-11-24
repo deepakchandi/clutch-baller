@@ -8,10 +8,17 @@ import random
 #also adding -1 for rebounds
 #col is points
 def object_to_int(df, col):
-    new_df = df.convert_objects(convert_numeric=True)
+    df['game_id'] = df['game_id'].astype('object')
+    #df = df.convert_objects(convert_numeric=True)
+    
+    df['points'].replace(to_replace='', value= -1, inplace=True)
+    df['2fg_attempts'] = df['2fg_attempts'].astype(np.int64)
     df['3pt_shots'] = df['3pt_shots'].astype(np.int64)
-    new_df = df.drop(['period',	'away_score', 'home_score', 'pts_difference', 'data_set',	'date',	'remaining_time','team','event_type'], axis = 1)
-    return new_df
+    df['med/hard_attempts'] = df['med/hard_attempts'].astype(np.int64)
+    df = df.drop(['period',	'away_score', 'home_score', 'pts_difference', 'data_set',	'date',	'remaining_time','team','event_type'], axis = 1)
+    
+    return df
+
 
 
 
@@ -143,7 +150,7 @@ def add_league_avg(df):
 
 #assign weights to each type of shot
 def add_scores(df):
-    df['3pt_score'] = (df['3pt']*5)/(df['3pt_shots']*2)
+    df['3pt_score'] = (df['3pt']*4)/(df['3pt_shots']*2)
     df['Hard_2Score'] = (df['2pt_med/hard']*3)/(df['med/hard_attempts']*2)
     df['Easy_2Score'] = (df['Dunk/Layup']*2)/(df['Dunk/Layup_attempts']*2)
     df['FT_score'] = (df['FT_made']*1)/(df['FT_made'] + df['FT_missed'])
@@ -155,7 +162,7 @@ def add_scores(df):
     
 def is_clutch(df):    
     df['clutch_score'] = df['total_score']/4
-    df['is_clutch'] = ((df['clutch_score'] > df['clutch_score'].mean()) & (df['shots_made']>20)& (df['shooting%'] > df['league_all_shot_avg']))*1
+    df['is_clutch'] = ((df['clutch_score'] > df['clutch_score'].mean()) & (df['total_shots']>20)& (df['shooting%'] > df['league_all_shot_avg']))*1
     return df
 
 

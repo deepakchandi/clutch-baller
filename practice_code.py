@@ -117,19 +117,23 @@ def remove_not_imp_games(df, column):
 #for me column1 = 'player', column2='event_type', name = player you wanna see
 def get_percent(df, name):
     a = df[(df['player']==name) & ((df['event_type']== 'miss')|(df['event_type']=='shot'))]
-    percent = np.sum(a['event_type']=='shot')/a['event_type'].count()
-    return ("Shooting Percentage:{}".format(round(percent, 3)),'Made: {}'.format(np.sum(a['event_type']=='shot')),
-           'Attempt: {}'.format(a['event_type'].count()))
-
-
-#gives yu the free throw numbers for a certain player
-#for me column1 = 'player', column2='event_type', column3= 'result' name = player you wanna see
-def free_throw_percent(df,name):
-    a = df[(df['player']==name) & (df['event_type'] == 'free throw') & ((df['result']== 'made')|
+    b = df[(df['player']==name) & (df['event_type'] == 'free throw') & ((df['result']== 'made')|
                                         (df['result']=='missed'))]
-    percent = np.sum(a['result']=='made')/a['result'].count()
-    return("Free Throw:{}".format(round(percent, 3)),'Made: {}'.format(np.sum(a['result']=='made')),
-           'Attempt: {}'.format(a['result'].count()))
+    
+    percent_a = np.sum(a['event_type']=='shot')/a['event_type'].count()
+    
+    percent_b = np.sum(b['result']=='made')/b['result'].count()
+
+    result = ((' ', 'Shooting Percentage', 'Shots Made', 'Shots Attempted', 'FT Percentage', 'FT Made','FT Attempts'), 
+              (name, (round(percent_a, 3)),(np.sum(a['event_type']=='shot')), (a['event_type'].count()), (round(percent_b, 3)),
+               (np.sum(b['result']=='made')), (b['result'].count())))
+                     
+
+    df = pd.DataFrame(list(result)).T
+    df.columns = df.iloc[0]
+    df.drop(0, inplace=True)
+    df = df.set_index(' ')
+    return df
 
 
 
@@ -150,33 +154,20 @@ def compare_stats(df, name1, name2):
            )
 
 
-#compare shooting and free throw stats
-def compare_players(df, name1, name2):
 
-    a1 = df[(df['player']==name1) & ((df['event_type']== 'miss')|(df['event_type']=='shot'))]
-    a2 = df[(df['player']==name1) & (df['event_type'] == 'free throw') & ((df['result']== 'made')| (df['result']=='missed'))]
-
-    percenta1 = np.sum(a1['event_type']=='shot')/a1['event_type'].count()
-    percenta2 = np.sum(a2['result']=='made')/a2['result'].count()
-
-    b1 = df[(df['player']==name2) & ((df['event_type']== 'miss')|(df['event_type']=='shot'))]
-    b2 = df[(df['player']==name2) & (df['event_type'] == 'free throw') & ((df['result']== 'made')|(df['result']=='missed'))]
-
-    percentb1 = np.sum(b1['event_type']=='shot')/b1['event_type'].count()
-    percentb2 = np.sum(b2['result']=='made')/b2['result'].count()
-
-    s = ((' ', 'Shooting Percentage', 'Shots Made', 'Shots Attempted', 'FT Percentage', 'FT Made','FT Attempts'),(name1, (round(percenta1, 3)),(np.sum(a1['event_type']=='shot')),
-            (a1['event_type'].count()), (round(percenta2, 3)),(np.sum(a2['result']=='made')),
-           (a2['result'].count())),
-            (name2, (round(percentb1, 3)),(np.sum(b1['event_type']=='shot')),
-            (b1['event_type'].count()), (round(percentb2, 3)),(np.sum(b2['result']=='made')),
-           (b2['result'].count())))
-    
-    g = pd.DataFrame(list(s)).T
-    g.columns = g.iloc[0]
-    g.drop(0, inplace=True)
-    g = g.set_index(' ')
-    return g
+#Get complete stats for a player
+def player_stat(name1, name2):
+    player1 = (clutch_stats.loc[clutch_stats['player'] == name1]) 
+    player2 = (clutch_stats.loc[clutch_stats['player'] == name2])
+    both = pd.merge(player1,player2, how = 'outer')
+    both = both.T
+    both.reset_index(level=0, inplace=True)
+    both.columns = both.iloc[0]
+    stats = both.reindex(both.index.drop(0))
+    stats = stats.rename(columns={'player':' '})
+    stats = stats.set_index(' ')
+    stats = stats.drop(['shots_made', '2pt_made', '3pt_made', 'FT_made'])
+    return stats
 
     
     
@@ -310,6 +301,9 @@ def get_all_blocks(df, col1, col2, col3):
     l = l.sort_values(by = ['player','total_blocks', 'clutch_games'])
     
     return round(l, 3)
+
+
+
 
 
 

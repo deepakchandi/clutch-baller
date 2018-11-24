@@ -228,6 +228,20 @@ def is_clutch(df):
     df['clutch_asts'] = df['APG'] > df['league_ast_avg']
 #    df['clutch_TO'] = df['TPG'] < df['league_TO_avg']
 #    df['clutch_ejections'] = df['ejections'] < df['ejections/career']
+
+
+
+
+
+#gives yu the free throw numbers for a certain player
+#for me column1 = 'player', column2='event_type', column3= 'result' name = player you wanna see
+def free_throw_percent(df,name):
+    b = df[(df['player']==name) & (df['event_type'] == 'free throw') & ((df['result']== 'made')|
+                                        (df['result']=='missed'))]
+    percent = np.sum(b['result']=='made')/b['result'].count()
+    return("Free Throw:{}".format(round(percent, 3)),'Made: {}'.format(np.sum(b['result']=='made')),
+           'Attempt: {}'.format(a['result'].count()))
+
     
 
 
