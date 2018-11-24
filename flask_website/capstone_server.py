@@ -7,9 +7,11 @@ app = Flask(__name__)
 
 @app.route('/', methods = ['GET'])
 def home():
-    return '<h1> Hello World </h1><p>My name is Elliott</p>'
+    return render_template('home.html')
 
 
+# load the model
+#model = pickle.load(open('linreg.p','rb'))
 
 
 
