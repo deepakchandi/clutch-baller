@@ -1,27 +1,32 @@
+
 body {
-    background-color: #ec8c5c;
+    background-color: #e41b1b;
 }
 
 img {
     height: 300px;
-    width: 400px;
+    width: 450px;
 }
 
+
 li {
-    font-family: monospace;
+  font-size: 20;
+  font-family:sans-serif;
+  font-weight: bolder;
+  color: #0707f3;
 }
 
 h1 {
-    font-family: 'Gugi', cursive;
+    font-family: 'Gugi';
     color: red;
-    background-color: yellow;
+    background-color: #1625d8;
     border: 3px dashed green;
     margin: 25px;
     padding: 25px;
 }
 
 #controls {
-    background-color: #6effec;
+    background-color: #1625d8;
     border: 3px dashed green;
     margin: 25px;
     padding: 25px;
@@ -41,7 +46,7 @@ input {
 }
 
 #inference-button {
-    background-color: yellow;
+    background-color: #1625d8;
     border: 3px dashed green;
     margin: 10px;
     padding: 10px;

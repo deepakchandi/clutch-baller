@@ -1,6 +1,9 @@
 from flask import Flask,render_template, request,jsonify,Response
 import pickle
 import pandas as pd
+import numpy as np
+from code_for_flask import player_stat
+
 
 app = Flask(__name__)
 
@@ -14,13 +17,17 @@ def compare():
     return render_template('compare.html')
 
 # load the model
-#model = pickle.load(open('linreg.p','rb'))
+#comp = pickle.load(open('comparison.p','rb'))
 
-@app.route("/compare_stats", methods = ['GET'])
-def compare_stats():
-    df = pd.read_csv('stats_for_flask')
-    data = list(zip(df))
-    return jsonify(data)
+
+
+@app.route("/stat", methods = ['GET'])
+def stat():
+    req = request.get_json()
+    print(req)
+    name1, name2 = req['player'], req['player']
+    stats = list(comp(name1, name2))
+    return jsonify({"stats": stats})
 
 
 if __name__ == '__main__':
