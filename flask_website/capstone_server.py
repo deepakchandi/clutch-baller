@@ -9,14 +9,18 @@ app = Flask(__name__)
 def home():
     return render_template('home.html')
 
-@app.route("/compare")
+@app.route("/compare", methods = ['GET'])
 def compare():
     return render_template('compare.html')
 
 # load the model
 #model = pickle.load(open('linreg.p','rb'))
 
-
+@app.route("/compare_stats", methods = ['GET'])
+def compare_stats():
+    df = pd.read_csv('stats_for_flask')
+    data = list(zip(df))
+    return jsonify(data)
 
 
 if __name__ == '__main__':
