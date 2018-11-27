@@ -153,7 +153,7 @@ def add_scores(df):
     df['3pt_score'] = (df['3pt']*4)/(df['3pt_shots']*2)
     df['Hard_2Score'] = (df['2pt_med/hard']*3)/(df['med/hard_attempts']*2)
     df['Easy_2Score'] = (df['Dunk/Layup']*2)/(df['Dunk/Layup_attempts']*2)
-    df['FT_score'] = (df['FT_made']*1)/(df['FT_made'] + df['FT_missed'])
+    df['FT_score'] = (df['FT_made'])/(df['FT_made'] + df['FT_missed'])
     df = df.fillna(0)
     return df
     
@@ -166,7 +166,7 @@ def is_clutch(df):
     df['FT_score'] = df['FT_score'] * (((df['FT_made'] + df['FT_missed'])>4)*1)
     df['total_score'] = df['3pt_score'] + df['Hard_2Score'] + df['Easy_2Score'] + df['FT_score'] - df['TPG']
     df['clutch_score'] = df['total_score']/4
-    df['is_clutch'] = ((df['clutch_score'] > df['clutch_score'].mean()) & ((df['total_shots']>df['total_shots'].mean()))*1 & (df['shooting%'] > df['league_all_shot_avg']))*1
+    df['is_clutch'] = ((df['clutch_score'] > df['clutch_score'].mean()) & (df['total_shots']>round(df['total_shots'].mean())) & (df['shooting%'] > df['league_all_shot_avg']))*1
     return df
 
 
