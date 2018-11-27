@@ -21,7 +21,6 @@ def object_to_int(df, col):
 
 
 
-
 #make a df for assists, and one for blocks and one for the stats we got above
 def assist_stats(df):
     ast = df.groupby('assist').sum()
@@ -89,12 +88,23 @@ def get_per_game_stats(df):
 
 #USE THIS FOR RANDOM IDS
 
-
 def add_ids(df):
     x = df.groupby('player').count().reset_index()
     x = x[['player']]
     x['player_id'] = [random.randint(1,10000000) for k in x.index]
     return x
+
+
+# give ids to new players
+def new_id(df, col):
+    for value in df[col].values:
+        if value!= 0:
+            pass
+        else:
+            df[col] = [random.randint(1,10000000) for k in df.index]
+    return df
+
+
 
 #df2 = ids_df
 #merge ids with all dfs
@@ -121,8 +131,7 @@ def add_turnovers(df):
     new_df = turnover_data.rename(columns={'event_type':'total_turnovers'})
     return new_df
 
-#merge turnovers with the df of your choice
-#df = the df you want and new_df is turnover df
+
 def merge_turnovers(df,new_df):
     df = pd.merge(df,new_df,on='player', how = 'left')
     df = df.fillna(0)
@@ -140,9 +149,6 @@ def add_league_avg(df):
     df['league_3pt_avg'] = round((df['3pt'].sum())/(df['3pt_shots'].sum())*100,1)
     df['league_hard2pt_avg'] = round((df['2pt_med/hard'].sum())/(df['med/hard_attempts'].sum())*100,1)
     df['league_easy2pt_avg'] = round((df['Dunk/Layup'].sum())/(df['Dunk/Layup_attempts'].sum())*100,1)
-    #df['league_ast_avg'] = round((df['assist_count'].sum())/ (df['total_games'].sum()), 2)
-    #df['league_blks_avg'] = round((df['total_blocks'].sum())/ (df['total_games'].sum()), 2)
-    #df['league_oreb_avg'] = round((df['off_rebound'].sum())/ (df['total_games'].sum()), 2)
     df['league_ft%'] = round((df['FT_made'].sum()/ (df['FT_made'].sum() + df['FT_missed'].sum())*100), 1)
     
     return df
