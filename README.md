@@ -1,28 +1,14 @@
 # clutch-baller
-who is the most clutch player?
+who will be clutch in next season?
 
--What is the project?
-To see who was a clutch player in NBA in the past and who will be more clutch next season.
+Every sports enthusiast have had some type of argument about the sport they love. In NBA one of the most hot topics is "who is the most clutch player?" In this project, I looked at the NBA play by play data fro each game from last 14 season to see who has been a clutch player in NBA in the past and predict who will be more clutch next season. The goal was to see which players should take more shots in closing moments of a close game. I defined the clutch moment being a game that is within 6 points with only two minutes to play in the fourth quarter.
 
--Why do it?
-To answer wether there is such thing as clutch.
-Is the best player in the team the most clutch
-Help determine who should take more shots in the closing momemts of the game when the game is close.
+First step was to do some EDA, feature engineering, and then get only the games that were clutch, within 6 points with two minutes to play. Then, I got stats for every player that played with in the clutch time. The next step was to see if there is any difference between regular game and the clutch time. For that I followed the same procedure for the games that were not clutch and for all the games before 2 minutes of regulation. After comparing the player stats for both I found out that all the players are less efficient in last two minutes, in comparison to rest of the game.
 
--How did you get the answer?
-Looked at the play by play stats for each game in last 14 years.
-Focus on games that were within 6 points with two minutes to play in the regulation.
-Get stats for each player for these conditions.
-Compare them with the rest of the league and with the non-clutch time.
-Came up with a clutch score and if a players clutch score is above the league average and has taken a certain amount of shots then the player is considered clutch.
+After looking some more data engineering I came up with a clutch score for each player depending on how well they performed during that time. Then, by looking at the clutch score and other stats I labled each player as clutch or not clutch. Out of all the players about 16% ended up being clutch.
 
--Model results?
-Looked at the stats from last year and predict if the player will be clutch next year.
-there were 8 important features.
-Did gradient boosting and the model predicted correctly with the accuracy of 87.3%. Which was higher than the baseline model which predicted correctly with the accuracy of only 68%. Baseline model was if the player is clutch last year, they will be clutch again next year.
 
--What were the findings?
-All the players shooting percentages go doen by 5-6% in last two minutes. Only 12 players were clutch last year. Some big name players were not good in these clutch moments.
+Next step was to predict who will be clutch next year by looking at the stats from previous year. For this I tried Random Forest, gradient boosting, and the XGBoost. I decided to go with the XGBoost as it gave slightly better results. After running the final test, my model gave F1 score of 33% which was 14% improvement from the baseline model
 
 
 -Future Studies?
