@@ -44,6 +44,7 @@ $(document).ready(function(){
     const rowValues = [
       { title: 'Total Games', key: 'total_games' },
       { title: 'Total Shots', key: 'total_shots' },
+      { title: 'Overall Shooting %', key: 'shooting%' },
       { title: '2 Pt Attempts', key: '2pt_attempts' },
       { title: '2 Pt %', key: '2pt%' },
       { title: '3 Pt Attempts', key: '3pt_attempts' },
