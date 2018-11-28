@@ -32,11 +32,6 @@ def inference():
     return  stats.to_json()
 
 
-# @app.route('/jqgrid/<path:path>')
-# def send_js(path):
-#     return send_from_directory('templates/jqgrid', path)
-
-
 
 if __name__ == '__main__':
     app.run(host ='0.0.0.0', port = 3333, debug = True)
