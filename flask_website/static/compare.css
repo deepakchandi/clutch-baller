@@ -59,3 +59,19 @@ input {
     font-size: medium;
 
 }
+
+#comparison {
+  color: white;
+}
+
+td, tr {
+  border: 1px black solid;
+}
+
+tr {
+  text-align: left;
+}
+
+td {
+  text-align: center;
+}

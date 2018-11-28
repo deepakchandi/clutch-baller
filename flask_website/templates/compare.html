@@ -3,10 +3,23 @@
 <head>
   <link rel='stylesheet' href='/static/compare.css' />
   <title> Compare Players </title>
+
+    <!-- The jQuery library is a prerequisite for all jqSuite products -->
+    <!-- <script type="text/ecmascript" src="/jqgrid/js/jquery.min.js"></script> -->
+    <!-- We support more than 40 localizations -->
+    <!-- <script type="text/ecmascript" src="/jqgrid/js/trirand/i18n/grid.locale-en.js"></script> -->
+    <!-- This is the Javascript file of jqGrid -->
+    <!-- <script type="text/ecmascript" src="/jqgrid/js/trirand/jquery.jqGrid.min.js"></script> -->
+    <!-- This is the localization file of the grid controlling messages, labels, etc.
+    <!-A link to a jQuery UI ThemeRoller theme, more than 22 built-in and many more custom -->
+    <!-- <link rel="stylesheet" type="text/css" media="screen" href="/jqgrid/css/jquery-ui.css" /> -->
+    <!-- The link to the CSS that the grid needs -->
+    <!-- <link rel="stylesheet" type="text/css" media="screen" href="/jqgrid/css/trirand/ui.jqgrid.css" /> -->
+
 </head>
 
 <body>
-  <img src='https://fadeawayworld.net/wp-content/uploads/2018/05/32969645_2226666370682750_3050473403560493056_n.jpg'/>
+  <!-- <img src='https://fadeawayworld.net/wp-content/uploads/2018/05/32969645_2226666370682750_3050473403560493056_n.jpg'/>
   <img src='https://media.giphy.com/media/l2QZSithIGhPdpSdq/giphy.gif'/>
   <img src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTi_bJfBOtHv8Yz1GSq_LQLxEaqP6_1DmQ-A3Bxo39hZEtCqVHB_Q'/>
   <ul>
@@ -16,7 +29,7 @@
     <li>
       <a href='/'> Home </a>
     </li>
-  </ul>
+  </ul> -->
 
   <!-- Intro Message -->
   <h1> Lets compare!! </h1>
@@ -26,12 +39,12 @@
 
   <div>
     <label> Player 1 </label>
-    <input id="Player 1" type="string" value="name" />
+    <input id="Player1" type="string" value="Steve Nash" />
   </div>
 
   <div>
     <label> Player 2 </label>
-    <input id="Player 2" type="string" value="name" />
+    <input id="Player2" type="string" value="Kobe Bryant" />
   </div>
 
 </div>
@@ -41,13 +54,16 @@
     <button id="inference"> Get Stats </button>
   </div>
   <div>
-    <input id="stats" type="text" readonly />
+    <table id="comparison">
+    </table>
   </div>
 
 </div>
 
 
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.35.2/plotly.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="/static/compare.js"></script>
 
 </body>
 

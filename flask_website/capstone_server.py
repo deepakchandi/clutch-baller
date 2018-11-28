@@ -1,8 +1,10 @@
-from flask import Flask,render_template, request,jsonify,Response
+from flask import Flask,render_template, request,jsonify,Response, send_from_directory
 import pickle
 import pandas as pd
 import numpy as np
 from code_for_flask import player_stat
+import io
+import json
 
 
 app = Flask(__name__)
@@ -17,17 +19,23 @@ def compare():
     return render_template('compare.html')
 
 # load the model
-#comp = pickle.load(open('comparison.p','rb'))
+comp = pickle.load(open('comparison.p','rb'))
 
-
-
-@app.route("/stat", methods = ['GET'])
-def stat():
+#need to make a route for this by making a json page
+@app.route("/inference", methods = ['POST'])
+def inference():
     req = request.get_json()
     print(req)
-    name1, name2 = req['player'], req['player']
-    stats = list(comp(name1, name2))
-    return jsonify({"stats": stats})
+    df = pd.read_csv('stats_for_flask')
+    name1, name2 = req['Player1'], req['Player2']
+    stats = comp(name1, name2, df)
+    return  stats.to_json()
+
+
+# @app.route('/jqgrid/<path:path>')
+# def send_js(path):
+#     return send_from_directory('templates/jqgrid', path)
+
 
 
 if __name__ == '__main__':
