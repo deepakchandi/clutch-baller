@@ -7,12 +7,6 @@ First step was to do some EDA, feature engineering, and then get only the games 
 
 After looking some more data engineering I came up with a clutch score for each player depending on how well they performed during that time. Then, by looking at the clutch score and other stats I labled each player as clutch or not clutch. Out of all the players about 16% ended up being clutch.
 
-
 Next step was to predict who will be clutch next year by looking at the stats from previous year. For this I tried Random Forest, gradient boosting, and the XGBoost. I decided to go with the XGBoost as it gave slightly better results. After running the final test, my model gave F1 score of 33% which was 14% improvement from the baseline model
 
-
--Future Studies?
-Look at other factors that can impact the clutchness.
-Add defensive stats to see if they are clutch.
-Look at defensive plays, was the player double teamed or one on one.
-Was the shot contested or open shot.
+In future, one thing we can look at is the defensive plays to determine how tough the shot was. We can look at the type of defensive scheme the shooter was going against. Some other things we can look at are whether the shot was wide-open or was it contested. Also, we can look if the shooter was double teamed or was the defense playing one on one. My data did not have any of this information so I was not able to include it in my project. Also, since defense is also an important part of the game, we can look at is if a player is clutch on defense as in if they play better defense in the closing moments and if they make game changing blocks or steals to help their team win the game.
