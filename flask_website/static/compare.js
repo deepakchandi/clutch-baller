@@ -52,7 +52,8 @@ $(document).ready(function(){
       { title: 'FT %', key: 'FT%' },
       { title: 'Total Assists', key: 'total_assists' },
       { title: 'Total Blocks', key: 'total_blocks' },
-      { title: 'Offensive Rebounds', key: 'off_rebound' }
+      { title: 'Offensive Rebounds', key: 'off_rebound' },
+      { title: 'Clutch', key: 'is_clutch' }
 
     ];
 

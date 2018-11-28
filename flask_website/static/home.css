@@ -1,18 +1,23 @@
 
 body{
-background-color: #c7def3;
+background-image: url('https://cdn.hipwallpaper.com/i/83/53/sYWXUb.jpg')
 }
 
 #links{
 font-size: 20;
-color: blue;
+color: white;
+}
+
+a:visited{color:white;
 }
 
 #HomeHeader {
-font-size: 40;
-background-color: #7acc8c;
-border: 3px dashed red;
-margin: 25px;
+  position: absolute;
+  left: 33%;
+  width: 700px;
+  text-align: center;
+font-size: 50;
+color: white;
 padding: 25px;
 }
 
