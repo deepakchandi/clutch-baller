@@ -3,7 +3,6 @@ import pandas as pd
 import random
 
 
-
 #converting object to int64
 #also adding -1 for rebounds
 #col is points
@@ -18,7 +17,6 @@ def object_to_int(df, col):
     df = df.drop(['period',	'away_score', 'home_score', 'pts_difference', 'data_set',	'date',	'remaining_time','team','event_type'], axis = 1)
     
     return df
-
 
 
 #make a df for assists, and one for blocks and one for the stats we got above
@@ -65,9 +63,7 @@ def get_per_game_stats(df):
     #how many total toatl 2 pointers they made
     df['2pt_fg_made'] = df['Dunk/Layup'] + df['2pt_med/hard']
     
-    
-    df['shots_made'] = (df['3pt'] + df['Dunk/Layup'] + df['2pt_med/hard'])
-    
+    df['shots_made'] = (df['3pt'] + df['Dunk/Layup'] + df['2pt_med/hard'])  
     
     df['total_shots'] = (df['shots_made'] + df['shots_missed'])
     df['shooting%'] = round((df['shots_made']/(df['shots_made'] + df['shots_missed'])*100), 1)
@@ -137,8 +133,7 @@ def merge_turnovers(df,new_df):
     df = df.fillna(0)
     df['TPG'] = round(df['total_turnovers'] / df['total_games'],2)
     
-    return new_df
-    
+    return new_df  
     
     
 
@@ -162,8 +157,7 @@ def add_scores(df):
     df['FT_score'] = (df['FT_made'])/(df['FT_made'] + df['FT_missed'])
     df = df.fillna(0)
     return df
-    
-    
+        
     
 def is_clutch(df):
     df['3pt_score'] = df['3pt_score'] * ((df['3pt_shots']>4)*1)
@@ -174,8 +168,6 @@ def is_clutch(df):
     df['clutch_score'] = df['total_score']/4
     df['is_clutch'] = ((df['clutch_score'] > df['clutch_score'].mean()) & (df['total_shots']>round(df['total_shots'].mean())) & (df['shooting%'] > df['league_all_shot_avg']))*1
     return df
-
-
 
 
 #only for final_test
@@ -189,10 +181,6 @@ def change_objects(df):
     df['med/hard_attempts'] = df['med/hard_attempts'].astype(np.int64)
     df = df.drop(['period',	'away_score', 'home_score', 'pts_difference', 'data_set',	'date',	'remaining_time','team','event_type'], axis = 1)
     return df
-
-
-    
-    
     
     
     
