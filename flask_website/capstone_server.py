@@ -26,7 +26,7 @@ comp = pickle.load(open('comparison.p','rb'))
 def inference():
     req = request.get_json()
     print(req)
-    df = pd.read_csv('stats_for_flask')
+    df = pd.read_csv('data_for flask.csv')
     name1, name2 = req['Player1'], req['Player2']
     stats = comp(name1, name2, df)
     return  stats.to_json()

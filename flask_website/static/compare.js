@@ -42,6 +42,8 @@ $(document).ready(function(){
     comparisonTable.appendChild(playersRow);
 
     const rowValues = [
+      { title: 'Clutch Years', key: 'clutch_years' },
+      { title: 'Years Played', key: 'years_played' },
       { title: 'Total Games', key: 'total_games' },
       { title: 'Total Shots', key: 'total_shots' },
       { title: 'Overall Shooting %', key: 'shooting%' },
@@ -53,8 +55,8 @@ $(document).ready(function(){
       { title: 'FT %', key: 'FT%' },
       { title: 'Total Assists', key: 'total_assists' },
       { title: 'Total Blocks', key: 'total_blocks' },
-      { title: 'Offensive Rebounds', key: 'off_rebound' },
-      { title: 'Clutch', key: 'is_clutch' }
+      { title: 'Offensive Rebounds', key: 'off_rebound' }
+
 
     ];
 

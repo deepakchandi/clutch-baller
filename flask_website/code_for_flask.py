@@ -12,5 +12,5 @@ def player_stat(name1, name2, df):
     stats = both.reindex(both.index.drop(0))
     stats = stats.rename(columns={'player':' '})
     stats = stats.set_index(' ')
-    stats = stats.drop(['shots_made', '2pt_made', '3pt_made', 'FT_made'])
+    stats = stats.drop(['shots_made', '2pt_made', '3pt_made', 'FT_made', 'is_clutch'])
     return stats
