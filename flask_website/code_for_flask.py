@@ -3,7 +3,7 @@ import numpy as np
 import pickle
 
 def player_stat(name1, name2, df):
-    player1 = (df.loc[df['player'] == name1]) 
+    player1 = (df.loc[df['player'] == name1])
     player2 = (df.loc[df['player'] == name2])
     both = pd.merge(player1,player2, how = 'outer')
     both = both.T
