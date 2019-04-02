@@ -18,6 +18,10 @@ def home():
 def compare():
     return render_template('compare.html')
 
+@app.route("/about", methods = ['GET'])
+def about():
+    return render_template('about.html')
+
 # load the model
 comp = pickle.load(open('comparison.p','rb'))
 
